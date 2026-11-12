@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101827">
+<title>Crash Analyzer N9</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:16px;background:#101827;color:white;font-family:Arial,sans-serif}
+main{max-width:480px;margin:auto}
+h1{color:#65b5ff;text-align:center}
+h2{color:#65b5ff;font-size:18px}
+.card{background:#202d40;padding:15px;margin:12px 0;border-radius:12px}
+input,button{width:100%;padding:13px;margin:7px 0;border:0;border-radius:8px;font-size:15px}
+input{background:#101827;color:white;border:1px solid #607080}
+button{background:#2385df;color:white;font-weight:bold}
+.second{background:#40516a}
+.result{padding:9px 0;border-bottom:1px solid #40516a}
+.small{color:#aebdd0;font-size:12px}
+.value{font-size:25px;color:#65b5ff;font-weight:bold}
+</style>
+</head>
+<body>
+<main>
+<h1>CRASH ANALYZER N9</h1>
+<p class="small" style="text-align:center">Tableau de bord des statistiques historiques</p>
+
+<div class="card">
+<h2>TABLEAU DE BORD</h2>
+<div class="result">Total enregistré : <span id="total">0</span></div>
+<div class="result">Moyenne historique : <span id="moyenne">0</span>x</div>
+<div class="result">Minimum : <span id="minimum">0</span>x</div>
+<div class="result">Maximum : <span id="maximum">0</span>x</div>
+</div>
+
+<div class="card">
+<h2>ENREGISTRER UN RÉSULTAT PASSÉ</h2>
+<input id="valeur" type="number" min="1" max="10000" step="0.01" placeholder="Exemple : 2.45">
+<button onclick="ajouter()">ENREGISTRER</button>
+<p id="message" class="small"></p>
+</div>
+
+<div class="card">
+<h2>HISTORIQUE</h2>
+<div id="historique">Aucune donnée enregistrée.</div>
+<button class="second" onclick="effacer()">EFFACER L'HISTORIQUE</button>
+</div>
+
+<div class="card">
+<h2>LES 9 ANALYSES HISTORIQUES</h2>
+<div id="analyses">En attente de données.</div>
+</div>
+
+<div class="card">
+<p class="small">
+IMPORTANT : ces analyses décrivent uniquement les données passées.
+Elles ne prédisent pas les prochains résultats et ne garantissent aucun gain.
+</p>
+</div>
+</main>
+
+<script>
+let donnees=[];
+try{
+donnees=JSON.parse(localStorage.getItem("n9_historique")||"[]");
+if(!Array.isArray(donnees)) donnees=[];
+}catch(e){donnees=[];}
+
+const categories=[
+["Très faibles",1,2],
+["Faibles",2,4],
+["Moyens",4,10],
+["Élevés",10,50],
+["Très élevés",50,100],
+["Extrêmes",100,1000],
+["Exceptionnels",1000,10000.01]
+];
+
+function moyenne(tab){
+return tab.reduce((a,b)=>a+b,0)/tab.length;
+}
+
+function afficher(){
+let total=donnees.length;
+document.getElementById("total").textContent=total;
+document.getElementById("moyenne").textContent=total?moyenne(donnees).toFixed(2):"0";
+document.getElementById("minimum").textContent=total?Math.min(...donnees):"0";
+document.getElementById("maximum").textContent=total?Math.max(...donnees):"0";
+
+document.getElementById("historique").innerHTML=total
+?donnees.slice().reverse().map((x,i)=>
+'<div class="result">'+(total-i)+'. '+x.toFixed(2)+'x</div>'
+).join("")
+:"Aucune donnée enregistrée.";
+
+if(!total){
+document.getElementById("analyses").textContent="En attente de données.";
+return;
+}
+
+let html="";
+
+// 1. Fréquences
+html+='<h2>1. FRÉQUENCES</h2>';
+categories.forEach(c=>{
+let n=donnees.filter(x=>x>=c[1]&&x<c[2]).length;
+html+='<div class="result">'+c[0]+' : '+n+
+' ('+(n/total*100).toFixed(1)+' %)</div>';
+});
+
+// 2. Mesures centrales
+let triees=[...donnees].sort((a,b)=>a-b);
+let med=total%2
+?triees[Math.floor(total/2)]
+:(triees[total/2-1]+triees[total/2])/2;
+html+='<h2>2. MESURES CENTRALES</h2>';
+html+='<div class="result">Moyenne : '+moyenne(donnees).toFixed(2)+'x</div>';
+html+='<div class="result">Médiane : '+med.toFixed(2)+'x</div>';
+
+// 3. Résultats sous 2x
+let faibles=donnees.filter(x=>x<2);
+html+='<h2>3. RÉSULTATS INFÉRIEURS À 2x</h2>';
+html+='<div class="result">'+faibles.length+' ('+(faibles.length/total*100).toFixed(1)+' %)</div>';
+
+// 4. Résultats à partir de 10x
+let eleves=donnees.filter(x=>x>=10);
+html+='<h2>4. RÉSULTATS À PARTIR DE 10x</h2>';
+html+='<div class="result">'+eleves.length+' ('+(eleves.length/total*100).toFixed(1)+' %)</div>';
+
+// 5. Dix derniers
+html+='<h2>5. LES 10 DERNIERS</h2>';
+html+='<div class="result">'+donnees.slice(-10).map(x=>x.toFixed(2)+'x').join(' • ')+'</div>';
+
+// 6. Variations
+html+='<h2>6. VARIATIONS HISTORIQUES</h2>';
+if(total>=2){
+let variations=[];
+for(let i=1;i<total;i++){
+variations.push(Math.abs(donnees[i]-donnees[i-1]));
+}
+html+='<div class="result">Variation moyenne : '+moyenne(variations).toFixed(2)+'x</div>';
+}else{
+html+='<div class="result">Deux données minimum nécessaires.</div>';
+}
+
+// 7. Dispersion
+html+='<h2>7. DISPERSION</h2>';
+if(total>=2){
+let m=moyenne(donnees);
+let variance=moyenne(donnees.map(x=>(x-m)**2));
+html+='<div class="result">Écart-type : '+Math.sqrt(variance).toFixed(2)+'</div>';
+}else{
+html+='<div class="result">Deux données minimum nécessaires.</div>';
+}
+
+// 8. Comparaison passée
+html+='<h2>8. COMPARAISON HISTORIQUE</h2>';
+if(total>=10){
+html+='<div class="result">Cinq précédents : '+moyenne(donnees.slice(-10,-5)).toFixed(2)+'x</div>';
+html+='<div class="result">Cinq derniers : '+moyenne(donnees.slice(-5)).toFixed(2)+'x</div>';
+}else{
+html+='<div class="result">Dix données minimum nécessaires.</div>';
+}
+
+// 9. Synthèse
+html+='<h2>9. SYNTHÈSE GÉNÉRALE</h2>';
+html+='<div class="result">Total : '+total+'</div>';
+html+='<div class="result">Minimum : '+Math.min(...donnees)+'x</div>';
+html+='<div class="result">Maximum : '+Math.max(...donnees)+'x</div>';
+
+document.getElementById("analyses").innerHTML=html;
+}
+
+function ajouter(){
+let champ=document.getElementById("valeur");
+let v=Number(champ.value);
+if(!champ.value||!Number.isFinite(v)||v<1||v>10000){
+document.getElementById("message").textContent="Valeur invalide : entre 1 et 10000.";
+return;
+}
+donnees.push(v);
+localStorage.setItem("n9_historique",JSON.stringify(donnees));
+champ.value="";
+document.getElementById("message").textContent="Résultat historique enregistré.";
+afficher();
+}
+
+function effacer(){
+if(!confirm("Effacer tout l'historique enregistré ?"))return;
+donnees=[];
+localStorage.removeItem("n9_historique");
+afficher();
+}
+
+afficher();
+</script>
+</body>
+</html>
