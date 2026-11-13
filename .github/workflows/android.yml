@@ -8,6 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Recuperer le projet
         uses: actions/checkout@v4
@@ -27,10 +28,11 @@ jobs:
           gradle-version: '8.9'
 
       - name: Construire APK
+        working-directory: n9_app
         run: gradle assembleDebug
 
       - name: Publier APK
         uses: actions/upload-artifact@v4
         with:
           name: Crash-Analyzer-N9
-          path: app/build/outputs/apk/debug/*.apk
+          path: n9_app/app/build/outputs/apk/debug/*.apk
