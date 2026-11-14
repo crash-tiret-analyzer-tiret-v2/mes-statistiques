@@ -19,9 +19,6 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Installer Android SDK
-        uses: android-actions/setup-android@v3
-
       - name: Installer Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
@@ -36,3 +33,4 @@ jobs:
         with:
           name: Crash-Analyzer-N9
           path: n9_app/app/build/outputs/apk/debug/*.apk
+
