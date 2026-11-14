@@ -1,4 +1,4 @@
-name: Construire APK N9
+name: Construire les deux applications Android
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-n9:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,13 +24,40 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Construire APK
+      - name: Construire APK N9
         working-directory: n9_app
         run: gradle assembleDebug
 
-      - name: Publier APK
+      - name: Publier APK N9
         uses: actions/upload-artifact@v4
         with:
           name: Crash-Analyzer-N9
           path: n9_app/app/build/outputs/apk/debug/*.apk
 
+  build-mes-stats:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Recuperer le projet
+        uses: actions/checkout@v4
+
+      - name: Installer Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Installer Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Construire APK Mes statistiques
+        working-directory: mes_stats_app
+        run: gradle assembleDebug
+
+      - name: Publier APK Mes statistiques
+        uses: actions/upload-artifact@v4
+        with:
+          name: Mes-Statistiques
+          path: mes_stats_app/app/build/outputs/apk/debug/*.apk
