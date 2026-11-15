@@ -55,6 +55,11 @@ h2{color:#65b5ff;font-size:17px}
  <div class="card">
   <h2>TABLEAU DE BORD</h2>
   <p class="small">Tes neuf espaces de suivi statistique</p>
+  <div class="grid">
+   <div class="stat">Valeurs enregistrées<strong id="globalTotal">0</strong></div>
+   <div class="stat">Moyenne générale<strong id="globalMoyenne">0</strong></div>
+  </div>
+  <h2>TES NEUF MODULES</h2>
   <div class="grid" id="bots"></div>
  </div>
 </div>
@@ -135,6 +140,14 @@ function lire(i){
  }
 }
 
+function mettreAJourTableau(){
+ let toutes=[];
+ bots.forEach((nom,i)=>{toutes=toutes.concat(lire(i));});
+ document.getElementById("globalTotal").textContent=toutes.length;
+ document.getElementById("globalMoyenne").textContent=
+  toutes.length?(toutes.reduce((a,b)=>a+b,0)/toutes.length).toFixed(2):"0";
+}
+
 function creerListe(){
  const zone=document.getElementById("bots");
  zone.innerHTML="";
@@ -145,6 +158,7 @@ function creerListe(){
   b.onclick=()=>ouvrirBot(i);
   zone.appendChild(b);
  });
+ mettreAJourTableau();
 }
 
 function ouvrirBot(i){
