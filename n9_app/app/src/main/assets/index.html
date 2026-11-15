@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -8,178 +9,206 @@
 <style>
 *{box-sizing:border-box}
 body{
-margin:0;
-padding:16px;
-background:#101827;
-color:white;
-font-family:Arial,sans-serif
+ margin:0;padding:16px;background:#101827;
+ color:white;font-family:Arial,sans-serif
 }
-main{max-width:600px;margin:auto}
-h1{text-align:center;color:#65b5ff}
-h2{color:#65b5ff;font-size:18px}
+main{max-width:650px;margin:auto}
+h1{text-align:center;color:#65b5ff;font-size:25px}
+.subtitle{text-align:center;color:#aebdd0;font-size:12px}
 .card{
-background:#202d40;
-padding:15px;
-margin:12px 0;
-border-radius:12px
+ background:#202d40;padding:16px;margin:12px 0;
+ border:1px solid #34465d;border-radius:13px
+}
+.grid{
+ display:grid;grid-template-columns:repeat(2,1fr);
+ gap:10px
 }
 button{
-width:100%;
-padding:13px;
-margin:6px 0;
-border:0;
-border-radius:8px;
-background:#2385df;
-color:white;
-font-weight:bold
+ width:100%;padding:13px;margin:5px 0;
+ border:0;border-radius:8px;background:#2385df;
+ color:white;font-weight:bold
+}
+input{
+ width:100%;padding:13px;margin:10px 0;
+ border-radius:8px;border:1px solid #526780;
+ background:#101827;color:white;font-size:16px
 }
 .small{color:#aebdd0;font-size:12px}
+.stat{
+ background:#101827;padding:12px;border-radius:8px;
+ text-align:center
+}
+.stat strong{display:block;color:#65b5ff;font-size:19px}
+#espaceBot[hidden],#accueil[hidden]{display:none}
+.second{background:#475569}
+.danger{background:#a33b48}
+h2{color:#65b5ff;font-size:17px}
 </style>
 </head>
 <body>
 <main>
 
 <h1>CRASH ANALYZER N9</h1>
-<p class="small" style="text-align:center">
-CENTRE DES 9 MODULES STATISTIQUES
-</p>
+<p class="subtitle">CENTRE DES 9 MODULES STATISTIQUES</p>
 
 <div id="accueil">
-
-
-
-</div>
-<div class="card">
-<h2>NEUF MODULES STATISTIQUES</h2>
-<div id="bots"></div>
+ <div class="card">
+  <h2>TABLEAU DE BORD</h2>
+  <p class="small">Tes neuf espaces de suivi statistique</p>
+  <div class="grid" id="bots"></div>
+ </div>
 </div>
 
 <div class="card" id="espaceBot" hidden>
-<h2 id="nomBot"></h2>
-<p class="small" id="plateforme"></p>
+ <h2 id="nomBot"></h2>
+ <p class="small">ESPACE DE SUIVI HISTORIQUE</p>
 
-<label>Enregistrer une valeur statistique :</label>
-<input id="valeur" type="number"
-min="0.01" max="10000" step="0.01"
-placeholder="Exemple : 25">
+ <label>Ajouter une valeur historique</label>
+ <input id="valeur" type="number"
+ min="0.01" max="10000" step="0.01"
+ placeholder="Exemple : 2.45">
 
-<button id="ajouter">ENREGISTRER</button>
+ <button id="ajouter">ENREGISTRER</button>
 
-<h2>STATISTIQUES</h2>
-<p>Total : <span id="total">0</span></p>
-<p>Moyenne : <span id="moyenne">0</span></p>
-<p>Minimum : <span id="minimum">0</span></p>
-<p>Maximum : <span id="maximum">0</span></p>
+ <h2>STATISTIQUES</h2>
+ <div class="grid">
+  <div class="stat">Total<strong id="total">0</strong></div>
+  <div class="stat">Moyenne<strong id="moyenne">0</strong></div>
+  <div class="stat">Minimum<strong id="minimum">0</strong></div>
+  <div class="stat">Maximum<strong id="maximum">0</strong></div>
+ </div>
 
-<h2>HISTORIQUE</h2>
-<div id="historique">Aucune donnée.</div>
+ <h2>HISTORIQUE</h2>
+ <div id="historique" class="small">
+  Aucune donnée.
+ </div>
 
-<button class="second" id="retour">RETOUR AUX 9 BOTS</button>
+ <button class="danger" id="effacer">EFFACER L'HISTORIQUE</button>
+ <button class="second" id="retour">RETOUR AUX 9 MODULES</button>
 </div>
 
+<p class="subtitle">
+Analyse descriptive des données passées.
+Aucune garantie sur les résultats futurs.
+</p>
+
+</main>
+
 <script>
-const bots = [
-["Module 1","Statistiques"],
-["Module 2","Statistiques"],
-["Module 3","Statistiques"],
-["Module 4","Statistiques"],
-["Module 5","Statistiques"],
-["Module 6","Statistiques"],
-["Module 7","Statistiques"],
-["Module 8","Statistiques"],
-["Module 9","Statistiques"]
+const bots=[
+"Module 1","Module 2","Module 3",
+"Module 4","Module 5","Module 6",
+"Module 7","Module 8","Module 9"
 ];
 
-let actif = -1;
+let actif=-1;
+
+function lire(i){
+ try{
+  const nouvelle="n9_module_"+i;
+  const ancienne="n9_bot_"+i;
+
+  let donnees=localStorage.getItem(nouvelle);
+
+  if(donnees===null){
+   donnees=localStorage.getItem(ancienne);
+   if(donnees!==null){
+    const anciennes=JSON.parse(donnees);
+    if(Array.isArray(anciennes)){
+     localStorage.setItem(nouvelle,JSON.stringify(anciennes));
+     return anciennes;
+    }
+   }
+   return [];
+  }
+
+  const resultat=JSON.parse(donnees);
+  return Array.isArray(resultat)?resultat:[];
+ }catch(e){
+  return [];
+ }
+}
 
 function creerListe(){
-const zone = document.getElementById("bots");
-zone.innerHTML = "";
+ const zone=document.getElementById("bots");
+ zone.innerHTML="";
 
-bots.forEach((bot,i)=>{
-const bouton = document.createElement("button");
-bouton.textContent = "BOT "+(i+1)+" — "+bot[0];
-bouton.onclick = ()=>ouvrirBot(i);
-zone.appendChild(bouton);
-});
+ bots.forEach((nom,i)=>{
+  const b=document.createElement("button");
+  b.textContent=nom;
+  b.onclick=()=>ouvrirBot(i);
+  zone.appendChild(b);
+ });
 }
 
 function ouvrirBot(i){
-actif=i;
-document.getElementById("accueil").hidden=true;
-document.getElementById("espaceBot").hidden=false;
-document.getElementById("nomBot").textContent=bots[i][0];
-document.getElementById("plateforme").textContent="Espace : "+bots[i][1];
-afficher();
-}
-
-function lire(){
-try{
-return JSON.parse(localStorage.getItem("n9_bot_"+actif)||"[]");
-}catch(e){
-return [];
-}
+ actif=i;
+ document.getElementById("accueil").hidden=true;
+ document.getElementById("espaceBot").hidden=false;
+ document.getElementById("nomBot").textContent=bots[i];
+ afficher();
 }
 
 function afficher(){
-const d=lire();
-const total=d.length;
+ const d=lire(actif);
+ const n=d.length;
 
-document.getElementById("total").textContent=total;
-document.getElementById("moyenne").textContent=total?(d.reduce((a,b)=>a+b,0)/total).toFixed(2):"0";
-document.getElementById("minimum").textContent=total?Math.min(...d):"0";
-document.getElementById("maximum").textContent=total?Math.max(...d):"0";
+ document.getElementById("total").textContent=n;
+ document.getElementById("moyenne").textContent=
+  n?(d.reduce((a,b)=>a+b,0)/n).toFixed(2):"0";
+ document.getElementById("minimum").textContent=
+  n?Math.min(...d).toFixed(2):"0";
+ document.getElementById("maximum").textContent=
+  n?Math.max(...d).toFixed(2):"0";
 
-const h=document.getElementById("historique");
-h.textContent="";
+ const h=document.getElementById("historique");
+ h.innerHTML="";
 
-if(!total){
-h.textContent="Aucune donnée enregistrée.";
-return;
-}
+ if(!n){
+  h.textContent="Aucune donnée enregistrée.";
+  return;
+ }
 
-d.slice().reverse().forEach((v,i)=>{
-const ligne=document.createElement("p");
-ligne.textContent=(i+1)+". "+v.toFixed(2);
-h.appendChild(ligne);
-});
+ d.slice().reverse().forEach((v,i)=>{
+  const ligne=document.createElement("p");
+  ligne.textContent=(i+1)+". "+v.toFixed(2);
+  h.appendChild(ligne);
+ });
 }
 
 document.getElementById("ajouter").onclick=()=>{
-try {
-if (typeof AndroidInternet === "undefined" || !AndroidInternet.disponible()) {
-alert("Connexion Internet obligatoire pour enregistrer.");
-return;
-}
-} catch(e) {
-alert("Impossible de vérifier la connexion Internet.");
-return;
-}
+ const champ=document.getElementById("valeur");
+ const v=Number(champ.value);
 
-const champ=document.getElementById("valeur");
-const v=Number(champ.value);
+ if(!champ.value||!Number.isFinite(v)||v<=0||v>10000){
+  alert("Valeur invalide.");
+  return;
+ }
 
-if(!champ.value||!Number.isFinite(v)||v<=0||v>10000){
-alert("Valeur invalide.");
-return;
-}
+ const d=lire(actif);
+ d.push(v);
+ localStorage.setItem(
+  "n9_module_"+actif,JSON.stringify(d)
+ );
 
-const d=lire();
-d.push(v);
-localStorage.setItem("n9_bot_"+actif,JSON.stringify(d));
-champ.value="";
-afficher();
+ champ.value="";
+ afficher();
+};
+
+document.getElementById("effacer").onclick=()=>{
+ if(!confirm("Effacer tout cet historique ?"))return;
+ localStorage.removeItem("n9_module_"+actif);
+ afficher();
 };
 
 document.getElementById("retour").onclick=()=>{
-document.getElementById("espaceBot").hidden=true;
-document.getElementById("accueil").hidden=false;
-actif=-1;
+ document.getElementById("espaceBot").hidden=true;
+ document.getElementById("accueil").hidden=false;
+ actif=-1;
 };
 
 creerListe();
 </script>
-
-</main>
 </body>
 </html>
+
