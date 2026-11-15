@@ -61,6 +61,10 @@ h2{color:#65b5ff;font-size:17px}
   </div>
   <h2>TES NEUF MODULES</h2>
   <div class="grid" id="bots"></div>
+  <h2>SAUVEGARDE DES DONNÉES</h2>
+  <button id="exporter">EXPORTER MES DONNÉES</button>
+  <button class="second" id="restaurer">RESTAURER MES DONNÉES</button>
+  <input id="fichierRestauration" type="file" accept=".json,application/json" hidden>
  </div>
 </div>
 
@@ -101,15 +105,15 @@ Aucune garantie sur les résultats futurs.
 
 <script>
 const bots=[
-"Lucky Jet — 1WIN",
-"Aviator Predictor — 1WIN",
-"Rocket Queen — 1WIN",
-"Rocket — 1WIN",
-"Mines classique — 1WIN",
-"Crash — 1XBET",
-"Aviator Predictor — 1XBET",
-"Apple Of Fortune — 1XBET",
-"Under and Over 7 — 1XBET"
+"Module 1",
+"Module 2",
+"Module 3",
+"Module 4",
+"Module 5",
+"Module 6",
+"Module 7",
+"Module 8",
+"Module 9"
 ];
 
 let actif=-1;
@@ -225,6 +229,99 @@ document.getElementById("retour").onclick=()=>{
  document.getElementById("espaceBot").hidden=true;
  document.getElementById("accueil").hidden=false;
  actif=-1;
+};
+
+
+document.getElementById("exporter").onclick=()=>{
+ try{
+  const sauvegarde={
+   application:"Crash Analyzer N9",
+   version:1,
+   dateExport:new Date().toISOString(),
+   modules:bots.map((_,i)=>lire(i))
+  };
+  if(window.AndroidBackup && typeof window.AndroidBackup.enregistrer==="function"){
+   window.AndroidBackup.enregistrer(JSON.stringify(sauvegarde,null,2));
+  }else{
+   alert("Fonction de sauvegarde Android indisponible.");
+  }
+ }catch(e){
+  alert("Erreur pendant la sauvegarde.");
+ }
+};
+
+document.getElementById("restaurer").onclick=()=>{
+ document.getElementById("fichierRestauration").click();
+};
+
+document.getElementById("fichierRestauration").onchange=(event)=>{
+ const fichier=event.target.files[0];
+ if(!fichier)return;
+
+ if(fichier.size>5000000){
+  alert("Fichier trop volumineux.");
+  event.target.value="";
+  return;
+ }
+
+ const lecteur=new FileReader();
+
+ lecteur.onload=()=>{
+  try{
+   const sauvegarde=JSON.parse(lecteur.result);
+
+   if(
+    sauvegarde.application!=="Crash Analyzer N9"||
+    sauvegarde.version!==1||
+    !Array.isArray(sauvegarde.modules)||
+    sauvegarde.modules.length!==9
+   ){
+    throw new Error("Format invalide");
+   }
+
+   const valides=sauvegarde.modules.every(module=>
+    Array.isArray(module)&&
+    module.every(v=>
+     typeof v==="number"&&
+     Number.isFinite(v)&&v>0&&v<=10000
+    )
+   );
+
+   if(!valides)throw new Error("Données invalides");
+
+   if(!confirm("Restaurer cette sauvegarde ? Les données actuelles seront remplacées.")){
+    event.target.value="";
+    return;
+   }
+
+   const anciennes=bots.map((_,i)=>lire(i));
+
+   try{
+    sauvegarde.modules.forEach((module,i)=>{
+     localStorage.setItem("n9_module_"+i,JSON.stringify(module));
+    });
+   }catch(e){
+    anciennes.forEach((module,i)=>{
+     localStorage.setItem("n9_module_"+i,JSON.stringify(module));
+    });
+    throw e;
+   }
+
+   mettreAJourTableau();
+   alert("Restauration terminée.");
+  }catch(e){
+   alert("Fichier invalide ou restauration impossible. Les anciennes données sont conservées.");
+  }
+
+  event.target.value="";
+ };
+
+ lecteur.onerror=()=>{
+  alert("Impossible de lire le fichier.");
+  event.target.value="";
+ };
+
+ lecteur.readAsText(fichier);
 };
 
 creerListe();
