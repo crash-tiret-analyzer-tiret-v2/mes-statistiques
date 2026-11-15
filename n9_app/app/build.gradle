@@ -7,7 +7,7 @@ android {
     compileSdk 35
 
     defaultConfig {
-        applicationId 'com.crashanalyzern9'
+        applicationId 'com.crashanalyzern9.v2'
         minSdk 23
         targetSdk 28
         versionCode 1
