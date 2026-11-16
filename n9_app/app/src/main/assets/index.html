@@ -59,6 +59,8 @@ h2{color:#65b5ff;font-size:17px}
    <div class="stat">Valeurs enregistrées<strong id="globalTotal">0</strong></div>
    <div class="stat">Moyenne générale<strong id="globalMoyenne">0</strong></div>
   </div>
+  <h2>COMPARAISON DES 9 MODULES</h2>
+  <div id="comparaisonModules" class="small"></div>
   <h2>TES NEUF MODULES</h2>
   <div class="grid" id="bots"></div>
   <h2>SAUVEGARDE DES DONNÉES</h2>
@@ -87,6 +89,15 @@ h2{color:#65b5ff;font-size:17px}
   <div class="stat">Maximum<strong id="maximum">0</strong></div>
  </div>
 
+ <h2>ANALYSE APPROFONDIE</h2>
+ <div class="grid">
+  <div class="stat">Médiane<strong id="mediane">0</strong></div>
+  <div class="stat">Étendue<strong id="etendue">0</strong></div>
+  <div class="stat">Valeurs sous 2<strong id="sous2">0</strong></div>
+  <div class="stat">Valeurs de 2 à 5<strong id="de2a5">0</strong></div>
+  <div class="stat">Valeurs à partir de 5<strong id="sup5">0</strong></div>
+ </div>
+
  <h2>HISTORIQUE</h2>
  <div id="historique" class="small">
   Aucune donnée.
@@ -105,15 +116,15 @@ Aucune garantie sur les résultats futurs.
 
 <script>
 const bots=[
-"Module 1",
-"Module 2",
-"Module 3",
-"Module 4",
-"Module 5",
-"Module 6",
-"Module 7",
-"Module 8",
-"Module 9"
+"Lucky Jet — 1WIN",
+"Aviator Predictor — 1WIN",
+"Rocket Queen — 1WIN",
+"Rocket — 1WIN",
+"Mines classique — 1WIN",
+"Crash — 1XBET",
+"Aviator Predictor — 1XBET",
+"Apple Of Fortune — 1XBET",
+"Under and Over 7 — 1XBET"
 ];
 
 let actif=-1;
@@ -150,6 +161,20 @@ function mettreAJourTableau(){
  document.getElementById("globalTotal").textContent=toutes.length;
  document.getElementById("globalMoyenne").textContent=
   toutes.length?(toutes.reduce((a,b)=>a+b,0)/toutes.length).toFixed(2):"0";
+
+ const zone=document.getElementById("comparaisonModules");
+ zone.innerHTML="";
+ bots.forEach((nom,i)=>{
+  const d=lire(i).filter(v=>typeof v==="number"&&Number.isFinite(v));
+  const ligne=document.createElement("p");
+  const moyenne=d.length
+   ?(d.reduce((a,b)=>a+b,0)/d.length).toFixed(2):"0";
+  const minimum=d.length?Math.min(...d).toFixed(2):"0";
+  const maximum=d.length?Math.max(...d).toFixed(2):"0";
+  ligne.textContent=nom+" — "+d.length+" valeurs — moyenne "+moyenne+
+   " — min "+minimum+" — max "+maximum;
+  zone.appendChild(ligne);
+ });
 }
 
 function creerListe(){
@@ -185,6 +210,25 @@ function afficher(){
  document.getElementById("maximum").textContent=
   n?Math.max(...d).toFixed(2):"0";
 
+ const valeurs=d.filter(v=>typeof v==="number"&&Number.isFinite(v));
+ const triees=valeurs.slice().sort((a,b)=>a-b);
+ const totalValides=triees.length;
+ let mediane=0;
+
+ if(totalValides){
+  const milieu=Math.floor(totalValides/2);
+  mediane=totalValides%2
+   ?triees[milieu]
+   :(triees[milieu-1]+triees[milieu])/2;
+ }
+
+ document.getElementById("mediane").textContent=mediane.toFixed(2);
+ document.getElementById("etendue").textContent=totalValides
+  ?(triees[totalValides-1]-triees[0]).toFixed(2):"0";
+ document.getElementById("sous2").textContent=valeurs.filter(v=>v<2).length;
+ document.getElementById("de2a5").textContent=valeurs.filter(v=>v>=2&&v<5).length;
+ document.getElementById("sup5").textContent=valeurs.filter(v=>v>=5).length;
+
  const h=document.getElementById("historique");
  h.innerHTML="";
 
@@ -217,12 +261,14 @@ document.getElementById("ajouter").onclick=()=>{
 
  champ.value="";
  afficher();
+ mettreAJourTableau();
 };
 
 document.getElementById("effacer").onclick=()=>{
  if(!confirm("Effacer tout cet historique ?"))return;
  localStorage.removeItem("n9_module_"+actif);
  afficher();
+ mettreAJourTableau();
 };
 
 document.getElementById("retour").onclick=()=>{
