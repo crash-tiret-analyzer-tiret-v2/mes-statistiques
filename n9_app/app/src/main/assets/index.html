@@ -49,6 +49,7 @@ h2{color:#65b5ff;font-size:17px}
 <main>
 
 <h1>CRASH ANALYZER N9</h1>
+<p id="etatInternet" class="subtitle">Vérification de la connexion...</p>
 <p class="subtitle">CENTRE DES 9 MODULES STATISTIQUES</p>
 
 <div id="accueil">
@@ -375,3 +376,16 @@ creerListe();
 </body>
 </html>
 
+function verifierInternet(){
+ const etat=document.getElementById("etatInternet");
+ if(!etat)return;
+ if(window.AndroidInternet && AndroidInternet.disponible()){
+  etat.textContent="● CONNEXION INTERNET ACTIVE";
+  etat.style.color="#45d483";
+ }else{
+  etat.textContent="● AUCUNE CONNEXION INTERNET";
+  etat.style.color="#ff6577";
+ }
+}
+verifierInternet();
+setInterval(verifierInternet,5000);
