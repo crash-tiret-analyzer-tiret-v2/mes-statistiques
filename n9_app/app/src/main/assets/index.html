@@ -5,67 +5,86 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#101827">
-<title>CRASH ANALYZER N9</title>
+<title>CRASH ANALYZER N6</title>
 <style>
 *{box-sizing:border-box}
+:root{
+ --fond:#090713;--panneau:#171329;--violet:#8b5cf6;
+ --cyan:#28e5e0;--texte:#f5f3ff;--muet:#aaa5c5;
+ --bord:#393052;
+}
 body{
- margin:0;padding:16px;background:#101827;
- color:white;font-family:Arial,sans-serif
+ margin:0;padding:18px;background:
+ radial-gradient(ellipse at top,#29204a 0%,#100d20 45%,#080711 100%);
+ color:var(--texte);font-family:Arial,sans-serif;
 }
 main{max-width:650px;margin:auto}
-h1{text-align:center;color:#65b5ff;font-size:25px}
-.subtitle{text-align:center;color:#aebdd0;font-size:12px}
+h1{text-align:center;color:var(--cyan);font-size:25px;
+ letter-spacing:2px;text-shadow:0 0 15px #28e5e080}
+h2{color:var(--cyan);font-size:16px;letter-spacing:1px}
+.subtitle{text-align:center;color:var(--muet);font-size:12px}
 .card{
- background:#202d40;padding:16px;margin:12px 0;
- border:1px solid #34465d;border-radius:13px
+ background:linear-gradient(145deg,#1d1834,#111020);
+ padding:16px;margin:13px 0;border:1px solid var(--bord);
+ border-radius:16px;box-shadow:0 0 18px #8b5cf622;
 }
-.grid{
- display:grid;grid-template-columns:repeat(2,1fr);
- gap:10px
-}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 button{
- width:100%;padding:13px;margin:5px 0;
- border:0;border-radius:8px;background:#2385df;
- color:white;font-weight:bold
+ width:100%;padding:14px;margin:5px 0;border:1px solid #7860a8;
+ border-radius:11px;background:linear-gradient(120deg,#5636a0,#272044);
+ color:white;font-weight:bold;font-size:13px;
+ box-shadow:0 0 12px #8b5cf633;
 }
+button:active{transform:scale(.98)}
 input{
- width:100%;padding:13px;margin:10px 0;
- border-radius:8px;border:1px solid #526780;
- background:#101827;color:white;font-size:16px
+ width:100%;padding:13px;margin:10px 0;border-radius:10px;
+ border:1px solid #62518b;background:#0d0b19;
+ color:white;font-size:16px;
 }
-.small{color:#aebdd0;font-size:12px}
+.small{color:var(--muet);font-size:12px}
 .stat{
- background:#101827;padding:12px;border-radius:8px;
- text-align:center
+ background:#0e0c1b;padding:13px;border:1px solid #393052;
+ border-radius:11px;text-align:center;color:#c9c2e5;
 }
-.stat strong{display:block;color:#65b5ff;font-size:19px}
+.stat strong{display:block;color:var(--cyan);font-size:20px;margin-top:5px}
 #espaceBot[hidden],#accueil[hidden]{display:none}
-.second{background:#475569}
-.danger{background:#a33b48}
-h2{color:var(--accent,#65b5ff);font-size:17px}
-#ajouter{background:var(--accent,#2385df)}
-#espaceBot .stat{border:1px solid var(--accent,#34465d)}
-#espaceBot .stat strong{color:var(--accent,#65b5ff)}
+.second{background:#37304e}
+.danger{background:#762e50;border-color:#b64d78}
+#ajouter{background:linear-gradient(100deg,#633ec0,#087e91)}
+#espaceBot .stat{border-color:var(--accent,var(--bord))}
+#espaceBot .stat strong{color:var(--cyan)}
+#sharkPanel{border-color:#27d9d0;box-shadow:0 0 17px #28e5e022}
+#bots button{min-height:68px}
+@media(max-width:360px){
+ body{padding:10px}
+ h1{font-size:21px}
+ .card{padding:12px}
+}
 </style>
 </head>
 <body>
 <main>
 
-<h1>CRASH ANALYZER N9</h1>
+<h1>CRASH ANALYZER N6</h1>
 <p id="etatInternet" class="subtitle">Vérification de la connexion...</p>
-<p class="subtitle">CENTRE DES 9 MODULES STATISTIQUES</p>
+<div class="card" style="text-align:center">
+ <div class="small">HEURE OFFICIELLE — CÔTE D’IVOIRE</div>
+ <div id="heureCI" style="font-size:27px;color:#28e5e0;font-weight:bold;margin:8px">--:--:--</div>
+ <div id="dateCI" class="small">Chargement de la date...</div>
+</div>
+<p class="subtitle">CENTRE DES 6 MODULES STATISTIQUES</p>
 
 <div id="accueil">
  <div class="card">
   <h2>TABLEAU DE BORD</h2>
-  <p class="small">Tes neuf espaces de suivi statistique</p>
+  <p class="small">Tes six espaces de suivi statistique</p>
   <div class="grid">
    <div class="stat">Valeurs enregistrées<strong id="globalTotal">0</strong></div>
    <div class="stat">Moyenne générale<strong id="globalMoyenne">0</strong></div>
   </div>
-  <h2>COMPARAISON DES 9 MODULES</h2>
+  <h2>COMPARAISON DES 6 MODULES</h2>
   <div id="comparaisonModules" class="small"></div>
-  <h2>TES NEUF MODULES</h2>
+  <h2>TES SIX MODULES</h2>
   <div class="grid" id="bots"></div>
   <h2>SAUVEGARDE DES DONNÉES</h2>
   <button id="exporter">EXPORTER MES DONNÉES</button>
@@ -120,7 +139,7 @@ h2{color:var(--accent,#65b5ff);font-size:17px}
  </div>
 
  <button class="danger" id="effacer">EFFACER L'HISTORIQUE</button>
- <button class="second" id="retour">RETOUR AUX 9 MODULES</button>
+ <button class="second" id="retour">RETOUR AUX 6 MODULES</button>
 </div>
 
 <p class="subtitle">
@@ -144,6 +163,7 @@ const bots=[
 "Under and Over 7 — 1XBET"
 ];
 
+const modulesVisibles=[0,1,2,3,5,6];
 let actif=-1;
 
 function lire(i){
@@ -174,14 +194,16 @@ function lire(i){
 
 function mettreAJourTableau(){
  let toutes=[];
- bots.forEach((nom,i)=>{toutes=toutes.concat(lire(i));});
+ modulesVisibles.forEach(i=>{
+  const nom=bots[i];toutes=toutes.concat(lire(i));});
  document.getElementById("globalTotal").textContent=toutes.length;
  document.getElementById("globalMoyenne").textContent=
   toutes.length?(toutes.reduce((a,b)=>a+b,0)/toutes.length).toFixed(2):"0";
 
  const zone=document.getElementById("comparaisonModules");
  zone.innerHTML="";
- bots.forEach((nom,i)=>{
+ modulesVisibles.forEach(i=>{
+  const nom=bots[i];
   const d=lire(i).filter(v=>typeof v==="number"&&Number.isFinite(v));
   const ligne=document.createElement("p");
   const moyenne=d.length
@@ -205,7 +227,8 @@ function creerListe(){
   "#f4c542","#16d6a5","#ff70b8"
  ];
 
- bots.forEach((nom,i)=>{
+ modulesVisibles.forEach(i=>{
+  const nom=bots[i];
   const b=document.createElement("button");
   b.textContent=icones[i]+"  "+nom;
   b.style.background=couleurs[i];
@@ -440,6 +463,22 @@ function verifierInternet(){
   etat.style.color="#ff6577";
  }
 }
+function actualiserHorlogeCI(){
+ const maintenant = new Date();
+ document.getElementById("heureCI").textContent =
+  new Intl.DateTimeFormat("fr-FR",{
+   timeZone:"Africa/Abidjan",
+   hour:"2-digit",minute:"2-digit",second:"2-digit",
+   hour12:false
+  }).format(maintenant);
+ document.getElementById("dateCI").textContent =
+  new Intl.DateTimeFormat("fr-FR",{
+   timeZone:"Africa/Abidjan",
+   weekday:"long",day:"2-digit",month:"long",year:"numeric"
+  }).format(maintenant);
+}
+actualiserHorlogeCI();
+setInterval(actualiserHorlogeCI,1000);
 verifierInternet();
 setInterval(verifierInternet,5000);
 </script>
