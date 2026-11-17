@@ -85,6 +85,18 @@ h2{color:var(--accent,#65b5ff);font-size:17px}
 
  <button id="ajouter">ENREGISTRER</button>
 
+<section class="card" id="sharkPanel">
+  <h2>🦈 SHARK BOT — ANALYSE STATISTIQUE</h2>
+  <p id="sharkStatut">En attente de données.</p>
+  <p id="sharkCompte">Rapport dans 10 secondes après enregistrement.</p>
+  <div class="grid">
+    <div class="stat">Moyenne récente<strong id="sharkMoyenne">—</strong></div>
+    <div class="stat">Écart-type<strong id="sharkEcart">—</strong></div>
+    <div class="stat">Tendance<strong id="sharkTendance">—</strong></div>
+    <div class="stat">Incertitude<strong id="sharkIncertitude">—</strong></div>
+  </div>
+  <p id="sharkMessage">Analyse descriptive de l'historique.</p>
+</section>
  <h2>STATISTIQUES</h2>
  <div class="grid">
   <div class="stat">Total<strong id="total">0</strong></div>
@@ -264,6 +276,33 @@ function afficher(){
  });
 }
 
+let sharkTimer = null;
+function programmerAnalyseShark() {
+  clearTimeout(sharkTimer);
+
+  const moduleActif = actif;
+  document.getElementById("sharkStatut").textContent =
+    "Analyse en attente : 10 secondes.";
+
+  sharkTimer = setTimeout(() => {
+    if (actif !== moduleActif) return;
+
+    const resultat = window.SharkBot.analyser(lire(moduleActif));
+
+    document.getElementById("sharkStatut").textContent = resultat.statut;
+    document.getElementById("sharkMoyenne").textContent =
+      resultat.moyenneRecente ?? "—";
+    document.getElementById("sharkEcart").textContent =
+      resultat.ecartType ?? "—";
+    document.getElementById("sharkTendance").textContent =
+      resultat.tendance;
+    document.getElementById("sharkIncertitude").textContent =
+      resultat.incertitude;
+    document.getElementById("sharkMessage").textContent =
+      resultat.message;
+  }, 10000);
+}
+
 document.getElementById("ajouter").onclick=()=>{
  const champ=document.getElementById("valeur");
  const v=Number(champ.value);
@@ -406,42 +445,3 @@ setInterval(verifierInternet,5000);
 </script>
 </body>
 </html>
-<section class="card" id="sharkPanel">
-  <h2>🦈 SHARK BOT — ANALYSE STATISTIQUE</h2>
-  <p id="sharkStatut">En attente de données.</p>
-  <p id="sharkCompte">Rapport dans 10 secondes après enregistrement.</p>
-  <div class="grid">
-    <div class="stat">Moyenne récente<strong id="sharkMoyenne">—</strong></div>
-    <div class="stat">Écart-type<strong id="sharkEcart">—</strong></div>
-    <div class="stat">Tendance<strong id="sharkTendance">—</strong></div>
-    <div class="stat">Incertitude<strong id="sharkIncertitude">—</strong></div>
-  </div>
-  <p id="sharkMessage">Analyse descriptive de l'historique.</p>
-</section>
-let sharkTimer = null;
-
-function programmerAnalyseShark() {
-  clearTimeout(sharkTimer);
-
-  const moduleActif = actif;
-  document.getElementById("sharkStatut").textContent =
-    "Analyse en attente : 10 secondes.";
-
-  sharkTimer = setTimeout(() => {
-    if (actif !== moduleActif) return;
-
-    const resultat = window.SharkBot.analyser(lire(moduleActif));
-
-    document.getElementById("sharkStatut").textContent = resultat.statut;
-    document.getElementById("sharkMoyenne").textContent =
-      resultat.moyenneRecente ?? "—";
-    document.getElementById("sharkEcart").textContent =
-      resultat.ecartType ?? "—";
-    document.getElementById("sharkTendance").textContent =
-      resultat.tendance;
-    document.getElementById("sharkIncertitude").textContent =
-      resultat.incertitude;
-    document.getElementById("sharkMessage").textContent =
-      resultat.message;
-  }, 10000);
-}
