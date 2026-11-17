@@ -42,7 +42,10 @@ input{
 #espaceBot[hidden],#accueil[hidden]{display:none}
 .second{background:#475569}
 .danger{background:#a33b48}
-h2{color:#65b5ff;font-size:17px}
+h2{color:var(--accent,#65b5ff);font-size:17px}
+#ajouter{background:var(--accent,#2385df)}
+#espaceBot .stat{border:1px solid var(--accent,#34465d)}
+#espaceBot .stat strong{color:var(--accent,#65b5ff)}
 </style>
 </head>
 <body>
@@ -182,9 +185,18 @@ function creerListe(){
  const zone=document.getElementById("bots");
  zone.innerHTML="";
 
+ const icones=["✈️","🛩️","🚀","🚀","💎","☄️","✈️","🍎","🎲"];
+ const couleurs=[
+  "#00c987","#ff4b55","#a66cff",
+  "#ff922e","#398bff","#00d9e8",
+  "#f4c542","#16d6a5","#ff70b8"
+ ];
+
  bots.forEach((nom,i)=>{
   const b=document.createElement("button");
-  b.textContent=nom;
+  b.textContent=icones[i]+"  "+nom;
+  b.style.background=couleurs[i];
+  b.style.color="#101827";
   b.onclick=()=>ouvrirBot(i);
   zone.appendChild(b);
  });
@@ -193,6 +205,12 @@ function creerListe(){
 
 function ouvrirBot(i){
  actif=i;
+ const couleurs=[
+  "#00c987","#ff4b55","#a66cff",
+  "#ff922e","#398bff","#00d9e8",
+  "#f4c542","#16d6a5","#ff70b8"
+ ];
+ document.getElementById("espaceBot").style.setProperty("--accent",couleurs[i]);
  document.getElementById("accueil").hidden=true;
  document.getElementById("espaceBot").hidden=false;
  document.getElementById("nomBot").textContent=bots[i];
